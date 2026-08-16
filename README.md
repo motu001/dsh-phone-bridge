@@ -1,111 +1,177 @@
-# DSH 手机桥 — 把手机接入本地 DeepSeek Harness，并支持发文件/图片/视频
+# 📱 手机遥控电脑（DeepSeek Harness）· 小白入门教程
 
-> 面向 **DeepSeek/DSH agent** 的接入说明。看完这一份，你就能立刻明白它是什么、有哪些能力、怎么用。
-
----
-
-## 一句话
-
-这是一个跑在你电脑上、监听 **Telegram 和 QQ 机器人**的桥接层：用户手机给机器人发消息，它把消息喂给本地 **DeepSeek Harness（`dsh --profile headless`）** 执行任务，并把结果 —— **文本 / 图片 / 视频 / 任意文件** —— 主动推回手机。**不需要公网端口（Telegram）**。
-
-## 你（DSH/agent）最需要知道的三件事
-
-1. **它是"外部工具"，不是 DSH 插件**。它通过 `subprocess` 直接调 `node dsh/bin.js --profile headless "<任务>"`（已改成 node 调用，**不会弹 CMD 窗口**）。你这边只需保证 headless 能跑通。
-2. **"发文件"能力是核心**：手机 → 电脑（收），电脑 → 手机（发）。发文件两条通道都已验证可用。
-3. **所有可执行 / 要发送的文件放 `media_out/`**；手机收到的存 `inbox/`。
+> 用微信一样的聊天软件（**QQ** 或 **Telegram**），在手机上"遥控"你电脑上的 AI（DeepSeek Harness），
+> 还能**发图片、发视频、发文件**。不用懂编程、不用装公网服务器，看完照做就行。
 
 ---
 
-## 目录与职责
+## 🧐 这东西到底是干嘛的？（一分钟看懂）
+
+想象你的电脑上有一个"AI 助理"（DeepSeek Harness）。
+你想出门在外、只拿手机就能让它干活 —— 比如：
+
+- 跟它聊聊天、问问题、让它帮你写东西、整理文件；
+- 更厉害的是，让它**在电脑上生成一张图 / 一段视频**，然后**直接发到你的手机**。
+
+本软件就是一座"桥"：一边连你手机的 QQ 或 Telegram，一边连你电脑的 AI。
+你**在哪聊天，AI 就在哪回你**。
+
+```
+你的手机（QQ 或 Telegram）
+        │  发："帮我生成一张图"
+        ▼
+     这座"桥"（本软件，在你电脑上）
+        │  把话递给电脑里的 AI
+        ▼
+  AI 在电脑上干活，把结果（文字/图片/视频）交回
+        │
+        ▼
+  你手机收到回复 📲
+```
+
+---
+
+## ✅ 开始之前，先看看你手上有没有这几样
+
+开始前你只需要准备（都很容易弄到，第一次花十几分钟）：
+
+| 你要有 | 去哪儿弄 | 难不难 |
+|---|---|---|
+| 一个**手机 QQ** 或 **Telegram** | 应用商店直接装 | 😀 简单 |
+| 一个 **QQ机器人** 或 **Telegram机器人**(Bot) | 见下文第 2 步说明 | 🙂 中等 |
+| 一台能跑 **DeepSeek Harness** 的电脑 | 你已经有了 ✔ | 😀 简单 |
+| 电脑上装好 **Python** 和基础命令 | 见下文第 1 步 | 🙂 中等 |
+
+> 一句话：**你自己选一条通道** —— 要么全用 Telegram，要么全用 QQ，二选一就行（也可以两个都用）。
+
+---
+
+## 🚀 三步快速上手
+
+### 第 1 步：把代码下载到电脑
+
+1. 好一个文件夹放这些文件（比如 `D:\dsh-phone-bridge`）。
+2. 把这个仓库里的所有文件放进去。
+3. 装依赖（让代码能跑起来）：打开电脑的"命令提示符/终端"，输下面这行，回车：
+
+```bash
+pip install requests qq-botpy
+```
+
+> 显示 "Successfully installed" 就成功了。
+
+---
+
+### 第 2 步：填你自己机器人的"钥匙"（最关键）
+
+打开本目录里的 **`config.example.json`**，把它保存一份副本，改名叫 **`config.json`**。
+
+现在需要把"钥匙"填进去。你只需要填自己用的那个通道的钥匙（另一个不用动，保持空就行）。
+
+#### 用 Telegram 的填法 🟦
+1. 手机或电脑上打开 Telegram，找到 **@BotFather**（机器人爸爸）。
+2. 给它发 `/newbot`，按提示给机器人起名字，最后会给你一个**长长的 token**（类似 `123456:ABC...`）。
+3. 把 token 填进 `config.json` 的：
+   ```
+   "bot_token": "把这里换成你的token"
+   ```
+4. 顺便把你的**数字 ID** 填进 `"allowed_user_ids": [你的ID]`（用来知道是谁在发话）。
+   想知道自己 ID：在 Telegram 里找 @userinfobot 发 /start 就会告诉你。
+
+#### 用 QQ 如果你用 ：
+1. 去腾讯 QQ 机器人开放平台（q.qq.com）注册一个机器人应用，拿到：
+   - `appid`（一串数字）
+   - `appsecret`（一串乱码，像密码）
+2. 把它们填进：
+   ```
+   "qq": { "appid": "你的appid", "secret": "你的appsecret", ... }
+   ```
+3. 把 `"enabled": false` 改成 `true`，如果它写的是 false。
+
+> ⚠️ 这个文件里有你的密码（token / secret）！**千万别上传到网上**（GitHub、群里都不要发）。本地放好就行。
+
+---
+
+### 第 3 步：一键启动
+
+在电脑的文件夹里 **双击 `start-harness.bat`**（Windows 批处理）。
+
+它会自动做 4 件事（看弹出的窗口就知道进行到哪一步了）：
+1. 启动 Telegram 桥
+2. 启动 QQ 桥
+3. 启动"媒体通道"（联网用的）
+4. 启动 AI（DeepSeek Harness）网页
+
+看到 "已就绪 / ready" 就说明成功了。**这个窗口别关**，关了就停了。
+
+---
+
+## 📱 现在，用手机试试看
+
+打开你手机的 QQ 或 Telegram，找到你的机器人，给它发一句话，比如：
+
+```
+你好，你是谁？
+```
+
+它应该会回你（AI 的回复）。如果回了，说明**电脑 ↔ 手机已经连上**了！
+
+---
+
+## 🖼️ 关键：怎么让电脑"发文件"给手机
+
+这是这个软件最常用的功能。你在电脑上把文件（图片、视频、mp4 等）**放到手机的文件夹 `media_out\` 里**，然后在手机上给机器人发：
+
+```
+/send 文件名
+```
+
+例：
+- 电脑上放了 `myvideo.mp4` 到 `media_out\`，手机发 `/send myvideo.mp4`，视频就到手机了。
+
+> 💡 不用记命令、想做自动化时，可以用电脑上的 `notify.py`：
+> 比如让电脑运行 `python notify.py --channel qq --file 我生成的图.png`，图会自动发到你手机。
+> （专业用户常用，看不懂先跳过。）
+
+### 手机发文件给电脑（反向）
+你直接在手机 QQ / Telegram 里发一张图或文件 → 它会自动存到电脑的 `inbox\` 文件夹，并让电脑的 AI 帮你处理。
+
+---
+
+## ❓ 我卡住了？这里帮你看
+
+| 症状 | 大概率原因 | 怎么做 |
+|---|---|---|
+| 机器人"已启动"但回我话 | token 没填对/没换 | 回第 2 步核对 `config.json` |
+| QQ 发文件失败 | 机器人还在"沙盒/测试"模式 | 去 QQ 开放平台把它调到"正式/上线"，加白名单公网 IP |
+| 电脑总是弹黑色窗口 | 用了旧方法 | 现在已改好，正常不会再弹了 |
+| `cloudflared` 报错 | 网络连不上  | 挂代理再试，或用 Telegram（不用这条） |
+| 发文字能回、发图没反应 | 通道没开对应的媒体权限 | 查机器人配置里的"接收文件"开关 |
+
+---
+
+## 🔒 千万别做这几件（超重要）
+
+1. **`config.json` 里有你的密码（token / secret）——绝不外传**，绝不传到 GitHub/网盘/群。
+2. 只把这个 `config.example.json`（空模板）给别人，不要把你的真实配置给别人。
+3. 别把机器人加到很大的公开群，你一个人用就好（不然别人也能使唤你的电脑）。
+4. 不提交/不分享含密钥的文件 —— 本项目已经把 `config.json`、媒体文件等自动排除在上传之外。
+
+---
+
+## 📂 这些文件是干嘛的（速查）
 
 | 文件 | 作用 |
 |---|---|
-| `telegram_bridge.py` | Telegram 桥（polling）。收文本/图/视频/文件，+ `/send 文件名` 发回 |
-| `qq_bridge.py`        | QQ 开放平台桥（WSS）。接收附件 + `/send 文件名` 发回 |
-| `notify.py`           | **统一对外推送入口**：把文件/文本推到 QQ 或 Telegram（最常用） |
-| `push_to_qq.py`       | 主动向单个 QQ openid 推文件/文本（独立脚本） |
-| `bridge_common.py`    | 共享：加载配置 + 用 node 无窗口调用 dsh headless |
-| `media_server.py`     | 本地静态服务 + cloudflared 隧道，给 QQ 提供公网 URL |
-| `config.example.json` | 配置模板（复制为 `config.json`，填入真实密钥） |
-| `generate_image.py`   | 样例：生成图片的调用示例 |
+| `start-harness.bat` | 一键启动（双击它） |
+| `config.json` / `config.example.json` | 机器人的"钥匙"配置（模板/真实） |
+| `telegram_bridge.py` | 负责连 Telegram 的桥 |
+| `qq_bridge.py` | 负责连 QQ 的桥 |
+| `notify.py` | 电脑发文件/消息到手机的入口 |
+| `media_server.py` | 发文件用的媒体通道（联网） |
+| `bridge_common.py` | 桥的共同逻辑（把命令交给 AI） |
+| `media_files\` / `inbox\` | 发出去/收进来的文件（运行时自动） |
 
 ---
 
-## 快速上手（DSH 使用视角）
-
-### 1. 配置
-```bash
-cd phone_bridge
-copy config.example.json config.json
-# 填入：Telegram bot_token、QQ appid/secret、白名单 openid/user_id
-```
-
-### 2. 启动三个桥（无窗口，后台）
-```bash
-start-harness.bat
-```
-它会用 pythonw（无窗口）起 Telegram 桥 + QQ 桥 + media_server（cloudflared 隧道），最后开 DSH web。
-
-### 3. 电脑侧给手机发文件（最常用入口）
-```bash
-python notify.py --channel all --file  视频.mp4      # 推给 QQ + Telegram
-python notify.py --channel qq  --file   图.png
-python notify.py --channel tg  --file   视频.mp4
-python notify.py --channel qq  --message "H3 已完成"  # 推纯文本
-```
-`--channel`：`qq` / `tg` / `all`。
-
-### 4. 手机侧发文件给电脑
-用户在 Telegram/QQ 直接发图片/视频/文件 → 桥自动存 `inbox/` 并把本地路径作为上下文注入 DSH 任务。
-
-### 5. 手机命令发回文件（`/send 文件名`）
-放在 `media_out/` 的文件，手机发 `/send 文件名` 即发回。（Telegram 走原生上传；QQ 走 cloudflared 公网 URL。）
-
----
-
-## 渠道与文件发送对比（重要，直接避免你踩坑）
-
-| 能力 | Telegram | QQ |
-|---|---|---|
-| 接收图片/视频/文件 | ✅ 原生 `downloadFile` | ✅ WSS 附件下载 |
-| **主动推送文件到手机** | ✅ **原生上传，无需公网** | ✅ 需 `post_c2c_file` + **公网 URL（腾讯服务器去拉）** |
-| 主动推送文本 | ✅ sendMessage | ✅ POST messages |
-| 文件类型 | sendPhoto/Video/Document 全部支持 | `file_type`：1图/2视频/4文件（4 未完全开放） |
-
-**核心坑**：QQ 的 `post_*_file` 接口**只收 URL，不收二进制**（腾讯服务器去拉），所以本地文件必须先经 `media_server.py` + `cloudflared` 暴露成公网 URL。Telegram 则原生支持直接上传真实字节，不经网络暴露。
-
----
-
-## 文件描述（发布版）
-
-本目录只含**安全、可公开**的代码与文档：
-
-- ✅ 代码 / 脚本 / 配置模板 / README / LICENSE / 启动脚本
-- ❌ 已剔除：真实 `config.json`（含密钥）、`media_out/`、`inbox/`、`botpy.log`、运行产物、媒体文件、ComfyUI 提交脚本
-
-`.gitignore` 已把密钥、产物、媒体排除，确保 `git add .` 不会带入敏感内容。
-
----
-
-## 安全（必读红线）
-
-- `config.json` 含真实密钥，**被 `.gitignore` 排除，绝不提交**。
-- 白名单鉴权：只响应 `allowed_user_ids` / `allowed_usernames` / `whitelist` 内账号。
-- `config.json` / 密钥文件 / 生成产物绝不进 Git、不上传 GitHub。
-
----
-
-## 问题排查
-
-| 现象 | 处理 |
-|---|---|
-| QQ 发文件 401 / 主动消息收不到 | 机器人是沙盒/未开通主动消息配额；在 q.qq.com 加公网出口 IP |
-| cloudflared URL 经常变 | 每次启动换域名；用 `start-harness.bat` 统一管理，已先杀旧进程 |
-| 发消息弹 CMD 窗口 | 已改 node 直接调用（`dsh.node`+`dsh.binjs`），不再走 `.cmd` |
-
----
-
-## 参考
-
-架构参考：`BiBoyang/dsh-im-bridge`（插件态）、WeWork Hermes agent 的 QQ 适配器、腾讯 `bot-node-sdk`。
-本项目为**独立 Python 桥**形态（同 WeWork Hermes），对接官方 **QQ 机器人 API v2** 和 **Telegram Bot API**。
+祝你用得顺利！有卡住的地方，对照上面的表找找，基本都能解决。🎉
