@@ -1,0 +1,27 @@
+{
+  "telegram": {
+    "bot_token": "PASTE_YOUR_TELEGRAM_BOT_TOKEN_HERE",
+    "allowed_user_ids": [],
+    "allowed_usernames": [],
+    "password": "",
+    "allow_bootstrap": false
+  },
+  "dsh": {
+    "node": "C:\\Program Files\\nodejs\\node.exe",
+    "binjs": "C:\\Users\\Administrator\\AppData\\Local\\npm-cache\\_npx\\XXX\\node_modules\\@deepseek-ai\\dsh\\lib\\bin.js",
+    "bin": "C:\\Users\\Administrator\\AppData\\Local\\npm-cache\\_npx\\XXX\\node_modules\\.bin\\dsh.cmd",
+    "profile": "headless",
+    "timeout_sec": 300
+  },
+  "qq": {
+    "enabled": false,
+    "appid": "",
+    "secret": "",
+    "token": "",
+    "whitelist": [],
+    "app_secret_list": [],
+    "qq_type": "channel",
+    "allow_bootstrap": false,
+    "media_base_url": ""
+  }
+}

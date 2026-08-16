@@ -1,0 +1,21 @@
+手机桥 + DeepSeek Harness 一键启动说明
+================================================
+
+【start-harness.bat】一键启动（双击或命令行运行）
+  依次启动：
+    1. Telegram 桥   （Python 3.14）
+    2. QQ 桥         （Python 3.13）
+    3. media 媒体隧道（cloudflared，供把文件/图/视频发回 QQ）
+    4. DeepSeek Harness Web GUI（http://127.0.0.1:3080）
+
+【stop-harness.bat】停止上面的三个手机桥（不影响 Harness GUI）。
+
+【提示】
+  * 脚本本体均为纯 ASCII，因此不会出现俗称“乱码”的中文显示问题；
+    中文说明统一放在本文件（notes.txt，UTF-8），用记事本打开即正常。
+  * 若你的机器上 dsh / Python / cloudflared 路径不同，
+    请编辑 start-harness.bat 顶部的 DSH_BIN / PY314 / PY313 / BRIDGE_DIR / CFD。
+  * 首次点 start 后，手机会：
+      - Telegram：私聊 bot（白名单 + bootstrap）
+      - QQ：单聊 / 群 @ 机器人
+   即自动将该账号加入白名单。

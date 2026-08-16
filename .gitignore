@@ -1,0 +1,25 @@
+# ── 密钥 / 本地配置（绝不提交）──
+config.json
+
+# ── 运行产物 ──
+inbox/
+media_out/
+botpy.log
+__pycache__/
+*.pyc
+.venv/
+
+# ── 媒体文件 ──
+*.mp4
+*.mov
+*.webm
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.wav
+*.mp3
+
+# ── 编辑器 / 系统 ──
+.DS_Store
+Thumbs.db
