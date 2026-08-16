@@ -66,6 +66,17 @@ def _guess_binjs(cmd_path):
             return os.path.abspath(cand)
     except Exception:
         pass
+
+    # 从 npm 全局根自动发现全局安装的 dsh（npm install -g @deepseek-ai/dsh）
+    try:
+        out = subprocess.check_output(["npm", "root", "-g"], shell=True,
+                                      text=True, errors="replace").strip()
+        if out and os.path.isdir(out):
+            cand = os.path.join(out, "@deepseek-ai", "dsh", "lib", "bin.js")
+            if os.path.exists(cand):
+                return os.path.abspath(cand)
+    except Exception:
+        pass
     return None
 
 
