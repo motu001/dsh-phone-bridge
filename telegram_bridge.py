@@ -25,7 +25,11 @@ import time
 
 import requests
 
+<<<<<<< HEAD
 from bridge_common import load_config, run_dsh_task
+=======
+from bridge_common import load_config, run_dsh_task, run_unified_task
+>>>>>>> 818b011 (Add unified-agent bridge: Telegram + QQ share one persistent DSH agent)
 
 API = "https://api.telegram.org/bot{token}"
 
@@ -137,10 +141,21 @@ def handle_message(cfg, chat, user, text, media_note=""):
         return "抱歉，你的账号不在白名单中，无法使用此机器人。"
     t = (text or "").strip()
     if t.lower() in ("/start", "/help"):
+<<<<<<< HEAD
         return ("这是把手机消息转发给本地 DSH agent 的桥。\n"
                 "· 直接发消息（可带图/视频/文件）→ DSH 执行并回复。\n"
                 "· /send 文件名 → 把 phone_bridge/media_out/ 下的文件发回。")
     log("task from", user.get("username") or user.get("first_name"), ":", t[:80])
+=======
+        return ("这是把手机消息转发给 DSH agent 的桥。\n"
+                "· 直接发消息（可带图/视频/文件）→ DSH 执行并回复。\n"
+                "· /send 文件名 → 把 media_out/ 下的文件发回。")
+    log("task from", user.get("username") or user.get("first_name"), ":", t[:80])
+    # 统一通道：同一个用户始终打到同一个持久 agent 会话（peer = tg:<user_id>）
+    peer = "tg:{}".format(user.get("id"))
+    if (cfg.get("unified") or {}).get("enabled", True):
+        return run_unified_task(cfg, peer, t + media_note)
+>>>>>>> 818b011 (Add unified-agent bridge: Telegram + QQ share one persistent DSH agent)
     return run_dsh_task(cfg, t + media_note)
 
 
@@ -246,7 +261,15 @@ def main():
                 task = text if text else "分析我发来的这个文件，并说明它是什么。"
                 task += media_note
                 log("task from", user.get("username") or user.get("first_name"), ":", task[:80])
+<<<<<<< HEAD
                 reply = run_dsh_task(cfg, task)
+=======
+                peer = "tg:{}".format(user.get("id"))
+                if (cfg.get("unified") or {}).get("enabled", True):
+                    reply = run_unified_task(cfg, peer, task)
+                else:
+                    reply = run_dsh_task(cfg, task)
+>>>>>>> 818b011 (Add unified-agent bridge: Telegram + QQ share one persistent DSH agent)
                 tg_request(cfg, "sendMessage", chat_id=chat["id"], text=reply[:4096])
         except requests.exceptions.ConnectionError as e:
             log("网络错误，重试:", e)

@@ -129,8 +129,48 @@ def run_dsh_task(cfg, task_text):
     return out or "(空回复)"
 
 
+<<<<<<< HEAD
 if __name__ == "__main__":
     print("node  =", _default_node())
     print("binjs =", _guess_binjs(r"C:\Users\Administrator\AppData\Local\npm-cache\_npx\1e7f6d9597241db0\node_modules\.bin\dsh.cmd"))
     cfg = {"dsh": {"profile": "headless", "timeout_sec": 60}}
+=======
+# ── 统一 agent 通道（HTTP ↔ 同一持久 DSH agent）────────────────────────────
+# 当配置里开了 "unified"（默认走统一的 DSH agent API 端点）时，消息通过 HTTP
+# 打进同一个长期存活的 DSH agent（按 peer 分会话），而不是每次 spawn 一个一次性
+# `dsh --profile headless`。这样 Telegram / QQ 都能共享 agent 状态、模型与持久化。
+#
+# 注意：本机 DSH 走 127.0.0.1 回环。requests 会默认读取系统代理（Windows
+# 时甚至会把 127.0.0.1 都转发到代理），导致连接失败/超时——因此这里必须关闭
+# 代理直连本地端点。
+def run_unified_task(cfg, peer, task, timeout=300):
+    """把一条用户消息送到统一 DSH agent API 端点，返回助手最终回复。
+
+    peer   —— 渠道级用户标识（如 "tg:<id>"），决定该用户使用哪个持久 agent 会话。
+    """
+    unified = cfg.get("unified", {}) or {}
+    endpoint = unified.get("endpoint", "http://127.0.0.1:3080/api/agent/message")
+    try:
+        import requests as _r
+    except Exception:
+        return "❌ 缺少 requests，无法连接统一 agent。"
+    try:
+        # 关闭代理与本机回环直连，避免 Windows 系统代理拦截 localhost。
+        s = _r.Session()
+        s.trust_env = False  # 忽略环境/系统代理
+        r = s.post(endpoint, json={"peer": peer, "message": task},
+                   timeout=timeout, proxies={"http": None, "https": None})
+        data = r.json()
+        if not data.get("ok"):
+            return "❌ agent 返回错误: {}".format(data.get("error", r.status_code))
+        return data.get("reply") or "(空回复)"
+    except Exception as e:
+        return "❌ 统一 agent 调用失败: {}".format(str(e)[:200])
+
+
+if __name__ == "__main__":
+    print("node  =", _default_node())
+    print("binjs =", _guess_binjs(r"C:\Users\Administrator\AppData\Local\npm-cache\_npx\1e7f6d9597241db0\node_modules\.bin\dsh.cmd"))
+    cfg = {"dsh": {"profile": "headless", "timeout_sec": 60}, "unified": {}}
+>>>>>>> 818b011 (Add unified-agent bridge: Telegram + QQ share one persistent DSH agent)
     print("cmd0  =", resolve_dsh_invocation(cfg)[0])
