@@ -23,14 +23,14 @@ POST /api/agent/message ──►  同一个 DSH agent 运行时（同一进程�
   媒体收发、`/send` 文件回传、`notify.py` 推送能力保留。
 - **QQ**：官方插件在同一个 DSH profile/进程中驱动同一个 `agents` 运行时。
 
-## 二、改动清单
+## 一、改动清单
 
 | 文件 | 作用 |
 |---|---|
 | `bridge_common.py` | 新增 `run_unified_task()`：HTTP 打统一 agent，关闭系统代理直连本地 |
 | `telegram_bridge.py` | 消息处理改走 `run_unified_task`（保留媒体），peer=`tg:<id>` |
-| `config.json` | 新增 `unified` 段（`enabled`、`endpoint`） |
-| `agent_bridge_plugin.js` | 可复用的 DSH HTTP 端点插件（ESM Corda 供 profile 加载） |
+| `config.json` / `config.example.json` | 新增 `unified` 段（`enabled`、`endpoint`） |
+| `agent_bridge_plugin.js` | 可复用的 DSH HTTP 端点插件（ESM Cordis，供 profile 加载） |
 | `~/.dsh/profiles/web/cordis.patch.yml` | web profile patch：挂载 QQ 插件（默认 disabled + 说明） |
 
 ## 二、当前进程里已验证

@@ -6,6 +6,10 @@
     "password": "",
     "allow_bootstrap": false
   },
+  "unified": {
+    "enabled": true,
+    "endpoint": "http://127.0.0.1:3080/api/agent/message"
+  },
   "dsh": {
     "node": "C:\\Program Files\\nodejs\\node.exe",
     "binjs": "C:\\Users\\Administrator\\AppData\\Local\\npm-cache\\_npx\\XXX\\node_modules\\@deepseek-ai\\dsh\\lib\\bin.js",

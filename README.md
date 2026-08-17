@@ -150,6 +150,21 @@ pip install requests qq-botpy
 
 ---
 
+## 🧩 进阶：统一到「同一个 AI」通道
+
+默认情况下，每次发消息会单独启动一个 AI 任务（一次性的），各聊各的、不记得上文。
+
+本仓库额外提供了一套 **统一通道**：让 Telegram 和 QQ 都连到**同一个常驻的 DeepSeek Harness agent**，
+两个通道**共享同一段对话记忆、同样的工具和模型**。机制与配置见：
+
+> 📄 **[`INTEGRATION.md`](./INTEGRATION.md)** —— 统一 agent 的架构、改动清单、启用 QQ 的步骤与排障。
+
+- 开/关：`config.json` 里的 `unified.enabled`（`true` 用统一通道，`false` 用默认的一次性任务）。
+- 端点：`unified.endpoint`（默认 `http://127.0.0.1:3080/api/agent/message`）。
+- 分账号：每个 Telegram 用户（`tg:<id>`）/（启用后每个 QQ 用户）各自对应一个持久 agent 会话。
+
+---
+
 ## 🔒 千万别做这几件（超重要）
 
 1. **`config.json` 里有你的密码（token / secret）——绝不外传**，绝不传到 GitHub/网盘/群。
