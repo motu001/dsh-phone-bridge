@@ -1,5 +1,7 @@
 # 📱 手机遥控电脑（DeepSeek Harness）· 小白入门教程
 
+> [English](./README.en.md) | 中文
+
 > 用微信一样的聊天软件（**QQ** 或 **Telegram**），在手机上"遥控"你电脑上的 AI（DeepSeek Harness），
 > 还能**发图片、发视频、发文件**。不用懂编程、不用装公网服务器，看完照做就行。
 
